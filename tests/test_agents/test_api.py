@@ -77,7 +77,9 @@ def test_is_available_depends_on_an_api_key(no_keys, monkeypatch):
 
 def test_run_without_a_key_explains_what_to_set(no_keys, tmp_path):
     result = ApiAdapter().run("prompt", workdir=tmp_path)
-    assert result.status == "binary_not_found"
+    # Not "binary_not_found" -- this adapter has no CLI binary to miss in
+    # the first place; what's missing is a key (SECFOO-35).
+    assert result.status == "not_configured"
     assert "OPENAI_API_KEY" in result.stderr
 
 

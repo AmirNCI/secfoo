@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Literal
 
-Status = Literal["success", "failed", "timeout", "binary_not_found"]
+Status = Literal["success", "failed", "timeout", "binary_not_found", "not_configured"]
 
 
 def _kill_process_tree(pid: int, *, posix: bool = os.name == "posix") -> None:
