@@ -153,7 +153,10 @@ class ApiAdapter(AgentAdapter):
         started = time.monotonic()
         _strip_key_whitespace()
         if not self.is_available():
-            return self._result("binary_not_found", started, stderr=f"No API key set. Set one of: {', '.join(KEY_VARS)}")
+            # Not "binary_not_found": this adapter has no CLI to find on PATH
+            # in the first place -- the thing actually missing is a key.
+            # Reusing the CLI-adapters' status here was SECFOO-35.
+            return self._result("not_configured", started, stderr=f"No API key set. Set one of: {', '.join(KEY_VARS)}")
         try:
             import litellm
             from langgraph.graph import END, START, StateGraph

@@ -69,6 +69,7 @@ _STATUS_BADGE_CLASS = {
     "failed": "badge--error",
     "timeout": "badge--warning",
     "binary_not_found": "badge--error",
+    "not_configured": "badge--error",
     "running": "badge--primary",
     "pending": "badge--neutral",
 }

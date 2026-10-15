@@ -446,9 +446,12 @@ class RunRepository:
         }[group_by]
         query = (
             f"SELECT {group_sql} AS label, COUNT(*) AS runs, "
-            "COALESCE(SUM(runs.input_tokens),0) AS input_tokens, "
-            "COALESCE(SUM(runs.output_tokens),0) AS output_tokens, "
-            "COALESCE(SUM(runs.cost_usd),0) AS cost_usd, "
+            # No COALESCE here: SQLite's SUM() already returns NULL (not 0)
+            # when every value in the group is NULL, and that distinction is
+            # exactly "unknown" vs "zero" -- collapsing it to 0 is SECFOO-34.
+            "SUM(runs.input_tokens) AS input_tokens, "
+            "SUM(runs.output_tokens) AS output_tokens, "
+            "SUM(runs.cost_usd) AS cost_usd, "
             "SUM(CASE WHEN runs.cost_usd IS NULL THEN 1 ELSE 0 END) AS unpriced_runs "
             "FROM runs JOIN projects ON projects.id = runs.project_id "
             "WHERE runs.status NOT IN ('pending','running')"

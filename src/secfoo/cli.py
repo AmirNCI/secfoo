@@ -22,7 +22,7 @@ from secfoo.aibom import AIBOMParseError, parse_ai_bom
 from secfoo.attachments import infer_attachment_kind
 from secfoo.cloud import CloudConfig, CloudError
 from secfoo.config import CLOUD_CONFIG_PATH, attachment_dir
-from secfoo.cost import format_cost, format_tokens
+from secfoo.cost import format_cost, format_tokens, sum_optional
 from secfoo.runner import _project_display_name, execute_runs
 from secfoo.settings import CONFIG_PATH, ConfigError, load_config
 from secfoo.skills.loader import load_all_skills
@@ -178,6 +178,7 @@ _STATUS_STYLE = {
     "failed": "red",
     "timeout": "yellow",
     "binary_not_found": "red",
+    "not_configured": "red",
     "running": "cyan",
 }
 
@@ -627,15 +628,15 @@ def cost(
             str(row.runs),
             format_tokens(row.input_tokens),
             format_tokens(row.output_tokens),
-            format_cost(row.cost_usd) if row.unpriced_runs < row.runs else "-",
+            format_cost(row.cost_usd),
         )
     table.add_section()
     table.add_row(
         "[bold]Total[/]",
         str(sum(r.runs for r in rows)),
-        format_tokens(sum(r.input_tokens for r in rows)),
-        format_tokens(sum(r.output_tokens for r in rows)),
-        f"[bold]{format_cost(sum(r.cost_usd for r in rows))}[/]",
+        format_tokens(sum_optional(r.input_tokens for r in rows)),
+        format_tokens(sum_optional(r.output_tokens for r in rows)),
+        f"[bold]{format_cost(sum_optional(r.cost_usd for r in rows))}[/]",
     )
     console.print(table)
 

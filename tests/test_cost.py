@@ -79,7 +79,9 @@ def test_cost_summary_groups_and_counts_unpriced_runs(db):
     assert rows["api"].cost_usd == pytest.approx(1.0)
     assert rows["api"].input_tokens == 4000
     assert rows["api"].unpriced_runs == 0
-    assert rows["agent"].cost_usd == 0
+    # Fully-unpriced group: None (unknown), not 0 -- SECFOO-34.
+    assert rows["agent"].cost_usd is None
+    assert rows["agent"].input_tokens is None
     assert rows["agent"].unpriced_runs == 1
 
 
@@ -119,6 +121,18 @@ def test_cost_command_shows_totals_and_unpriced_note(db):
     assert "api" in result.stdout
     assert "$0.25" in result.stdout
     assert "1 run(s) have no cost recorded" in result.stdout
+
+
+def test_cost_command_total_is_dash_when_every_run_is_unpriced(db):
+    """SECFOO-34: an all-unknown total should read "-", not "$0.00"."""
+    _seed(agent_id="agent")
+    _seed(agent_id="other-agent")
+
+    result = runner.invoke(app, ["cost"])
+
+    assert result.exit_code == 0
+    assert "$0.00" not in result.stdout
+    assert "-" in result.stdout
 
 
 def test_cost_command_rejects_bad_since_date(db):

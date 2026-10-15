@@ -227,7 +227,9 @@ class SecretFindingRecord:
 class CostRow:
     label: str
     runs: int
-    input_tokens: int
-    output_tokens: int
-    cost_usd: float
+    # None means every run in this group is unpriced (no agent in it reports
+    # the figure), not that the group used zero -- SECFOO-34.
+    input_tokens: int | None
+    output_tokens: int | None
+    cost_usd: float | None
     unpriced_runs: int
